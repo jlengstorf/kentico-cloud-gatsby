@@ -10,31 +10,31 @@ class BlogIndex extends React.Component {
   render() {
     const { data } = this.props
     const siteTitle = data.site.siteMetadata.title
-    const posts = data.allMarkdownRemark.edges
+    // const posts = data.allMarkdownRemark.edges
+    const posts = data.allKenticoCloudItemBlog.nodes
 
     return (
       <Layout location={this.props.location} title={siteTitle}>
         <SEO title="All posts" />
         <Bio />
-        {posts.map(({ node }) => {
-          const title = node.frontmatter.title || node.fields.slug
+        {posts.map(post => {
+          const title = post.elements.title.value
           return (
-            <div key={node.fields.slug}>
+            <div key={post.elements.post_slug.value}>
               <h3
                 style={{
                   marginBottom: rhythm(1 / 4),
                 }}
               >
-                <Link style={{ boxShadow: `none` }} to={node.fields.slug}>
+                <Link
+                  style={{ boxShadow: `none` }}
+                  to={post.elements.post_slug.value}
+                >
                   {title}
                 </Link>
               </h3>
-              <small>{node.frontmatter.date}</small>
-              <p
-                dangerouslySetInnerHTML={{
-                  __html: node.frontmatter.description || node.excerpt,
-                }}
-              />
+              <small>{post.elements.post_date.value}</small>
+              <p>{post.elements.description.value}</p>
             </div>
           )
         })}
@@ -52,17 +52,23 @@ export const pageQuery = graphql`
         title
       }
     }
-    allMarkdownRemark(sort: { fields: [frontmatter___date], order: DESC }) {
-      edges {
-        node {
-          excerpt
-          fields {
-            slug
+
+    allKenticoCloudItemBlog(
+      sort: { fields: elements___post_date___datetime, order: DESC }
+    ) {
+      nodes {
+        elements {
+          title {
+            value
           }
-          frontmatter {
-            date(formatString: "MMMM DD, YYYY")
-            title
-            description
+          description {
+            value
+          }
+          post_date {
+            value(fromNow: true)
+          }
+          post_slug {
+            value
           }
         }
       }

@@ -8,17 +8,17 @@ import { rhythm, scale } from "../utils/typography"
 
 class BlogPostTemplate extends React.Component {
   render() {
-    const post = this.props.data.markdownRemark
+    const post = this.props.data.kenticoCloudItemBlog
     const siteTitle = this.props.data.site.siteMetadata.title
     const { previous, next } = this.props.pageContext
 
     return (
       <Layout location={this.props.location} title={siteTitle}>
         <SEO
-          title={post.frontmatter.title}
-          description={post.frontmatter.description || post.excerpt}
+          title={post.elements.title.value}
+          description={post.elements.description.value}
         />
-        <h1>{post.frontmatter.title}</h1>
+        <h1>{post.elements.title.value}</h1>
         <p
           style={{
             ...scale(-1 / 5),
@@ -27,9 +27,13 @@ class BlogPostTemplate extends React.Component {
             marginTop: rhythm(-1),
           }}
         >
-          {post.frontmatter.date}
+          {post.elements.post_date.value}
         </p>
-        <div dangerouslySetInnerHTML={{ __html: post.html }} />
+        <div
+          dangerouslySetInnerHTML={{
+            __html: post.elements.content.resolvedHtml,
+          }}
+        />
         <hr
           style={{
             marginBottom: rhythm(1),
@@ -48,15 +52,15 @@ class BlogPostTemplate extends React.Component {
         >
           <li>
             {previous && (
-              <Link to={previous.fields.slug} rel="prev">
-                ← {previous.frontmatter.title}
+              <Link to={previous.elements.post_slug.value} rel="prev">
+                ← {previous.elements.title.value}
               </Link>
             )}
           </li>
           <li>
             {next && (
-              <Link to={next.fields.slug} rel="next">
-                {next.frontmatter.title} →
+              <Link to={next.elements.post_slug.value} rel="next">
+                {next.elements.title.value} →
               </Link>
             )}
           </li>
@@ -76,14 +80,21 @@ export const pageQuery = graphql`
         author
       }
     }
-    markdownRemark(fields: { slug: { eq: $slug } }) {
-      id
-      excerpt(pruneLength: 160)
-      html
-      frontmatter {
-        title
-        date(formatString: "MMMM DD, YYYY")
-        description
+
+    kenticoCloudItemBlog(elements: { post_slug: { value: { eq: $slug } } }) {
+      elements {
+        title {
+          value
+        }
+        post_date {
+          value(fromNow: true)
+        }
+        description {
+          value
+        }
+        content {
+          resolvedHtml
+        }
       }
     }
   }

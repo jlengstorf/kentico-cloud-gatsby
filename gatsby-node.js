@@ -8,17 +8,16 @@ exports.createPages = ({ graphql, actions }) => {
   return graphql(
     `
       {
-        allMarkdownRemark(
-          sort: { fields: [frontmatter___date], order: DESC }
-          limit: 1000
+        allKenticoCloudItemBlog(
+          sort: { fields: elements___post_date___datetime, order: DESC }
         ) {
-          edges {
-            node {
-              fields {
-                slug
+          nodes {
+            elements {
+              title {
+                value
               }
-              frontmatter {
-                title
+              post_slug {
+                value
               }
             }
           }
@@ -31,17 +30,17 @@ exports.createPages = ({ graphql, actions }) => {
     }
 
     // Create blog posts pages.
-    const posts = result.data.allMarkdownRemark.edges
+    const posts = result.data.allKenticoCloudItemBlog.nodes
 
     posts.forEach((post, index) => {
-      const previous = index === posts.length - 1 ? null : posts[index + 1].node
-      const next = index === 0 ? null : posts[index - 1].node
+      const previous = index === posts.length - 1 ? null : posts[index + 1]
+      const next = index === 0 ? null : posts[index - 1]
 
       createPage({
-        path: post.node.fields.slug,
+        path: post.elements.post_slug.value,
         component: blogPost,
         context: {
-          slug: post.node.fields.slug,
+          slug: post.elements.post_slug.value,
           previous,
           next,
         },
@@ -50,17 +49,4 @@ exports.createPages = ({ graphql, actions }) => {
 
     return null
   })
-}
-
-exports.onCreateNode = ({ node, actions, getNode }) => {
-  const { createNodeField } = actions
-
-  if (node.internal.type === `MarkdownRemark`) {
-    const value = createFilePath({ node, getNode })
-    createNodeField({
-      name: `slug`,
-      node,
-      value,
-    })
-  }
 }

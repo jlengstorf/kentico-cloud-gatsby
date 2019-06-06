@@ -1,3 +1,6 @@
+const KC = require("kentico-cloud-delivery")
+const Blog = require("./src/models/blog")
+
 module.exports = {
   siteMetadata: {
     title: `Gatsby Starter Blog`,
@@ -9,6 +12,16 @@ module.exports = {
     },
   },
   plugins: [
+    {
+      resolve: "gatsby-source-kentico-cloud",
+      options: {
+        deliveryClientConfig: {
+          projectId: `21068269-fe66-00b2-fbc2-bd53d7fa0b42`,
+          typeResolvers: [new KC.TypeResolver("blog", () => new Blog())],
+        },
+        languageCodenames: [`default`],
+      },
+    },
     {
       resolve: `gatsby-source-filesystem`,
       options: {
